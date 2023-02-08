@@ -9,7 +9,8 @@ base_url = 'https://www.meb100.ru'
 first_link = 'https://www.meb100.ru/ulyanovskaya-oblast/mebelnye-fabriki-opt'
 resp = requests.get(first_link, timeout=30)
 base_page = bs(resp.content, 'html.parser')
-count_pages = int(base_page.find('li', attrs={'class': 'last'}).text)
+pagination = base_page.find('ul', attrs={'class':'pagination'})
+count_pages = int(pagination.find_all('li')[-1].text)
 log.info(f'Кол-во страниц -- {count_pages}')
 
 local_links = [i[0]
