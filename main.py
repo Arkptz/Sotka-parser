@@ -6,7 +6,7 @@ import logging as log
 from DB import SessionDb, FabricsDb
 
 base_url = 'https://www.meb100.ru'
-first_link = 'https://www.meb100.ru/ulyanovskaya-oblast/mebelnye-fabriki-opt'
+first_link = 'https://www.meb100.ru/ulyanovskaya-oblast/mebelnyj-sajt-magazin'
 resp = requests.get(first_link, timeout=30)
 base_page = bs(resp.content, 'html.parser')
 pagination = base_page.find('ul', attrs={'class':'pagination'})
@@ -43,14 +43,20 @@ for page in range(1, count_pages+1):
         log.info(f'Get {link}...')
         resp = requests.get(link, timeout=30)
         fabric_page = bs(resp.content, 'html.parser')
-        address = fabric_page.find('div', attrs={'id': 'content__address'}).text
-        address = delete_probels(address)
+        address = fabric_page.find('div', attrs={'id': 'content__address'})
+        if address:
+            address = delete_probels(address.text)
+        else:
+            address = ''
         fabric_site = delete_probels(
             fabric_page.find('div', attrs={'class': 'content-line'}).text)
         fabric_site = fabric_site if '.' in fabric_site else 'нету'
         phones = ''
         div_phones = fabric_page.find(
             'div', attrs={'class': 'content-line phones-preview'})
+        if not div_phones:
+            div_phones = fabric_page.find(
+            'div', attrs={'class': 'content-line'})
         for i in div_phones.find_all('span'):
             phones += delete_probels(i.text) + ',   '
         segments_elem = fabric_page.find(
